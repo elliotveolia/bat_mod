@@ -2,7 +2,7 @@ import pandas as pd
 
 INTERVAL_HOURS = 1.0
 
-data = pd.read_csv("Grid Import.csv")
+data = pd.read_csv("data/Grid Import.csv")
 
 print("Columns found:", list(data.columns))
 print(data.head())
@@ -55,7 +55,7 @@ baseline["highest_recorded_hourly_load_kw"] = baseline[
     "highest_recorded_hourly_load_kw"
 ].fillna(0)
 
-baseline.to_csv("baseline_monthly_summary.csv", index=False)
+baseline.to_csv("outputs/baseline_monthly_summary.csv", index=False)
 
 print("\nBaseline monthly summary:")
 print(baseline.to_string(index=False))
