@@ -1,19 +1,51 @@
+from pathlib import Path
+
 from data_loader import load_data, check_data_quality
-from report import create_baseline_report
+from report import (
+    create_baseline_report,
+    create_overall_summary,
+)
+
+
+INPUT_FILE = "data/Grid Import.csv"
+MONTHLY_OUTPUT_FILE = Path(
+    "outputs/baseline_monthly_summary.csv"
+)
+OVERALL_OUTPUT_FILE = Path(
+    "outputs/baseline_overall_summary.csv"
+)
 
 
 def main():
-    data = load_data("data/Grid Import.csv")
+    data = load_data(INPUT_FILE)
     check_data_quality(data)
 
-    baseline = create_baseline_report(data)
-    baseline.to_csv(
-        "baseline_monthly_summary.csv",
-        index=False
+    monthly_report = create_baseline_report(data)
+    overall_summary = create_overall_summary(
+        data,
+        monthly_report,
     )
 
-    print("\nBaseline report:")
-    print(baseline.to_string(index=False))
+    MONTHLY_OUTPUT_FILE.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    monthly_report.to_csv(
+        MONTHLY_OUTPUT_FILE,
+        index=False,
+    )
+
+    overall_summary.to_csv(
+        OVERALL_OUTPUT_FILE,
+        index=False,
+    )
+
+    print("\nMonthly baseline report:")
+    print(monthly_report.to_string(index=False))
+
+    print("\nOverall baseline summary:")
+    print(overall_summary.to_string(index=False))
 
 
 if __name__ == "__main__":

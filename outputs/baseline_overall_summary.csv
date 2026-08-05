@@ -1,0 +1,8 @@
+metric,value,unit
+Measured energy,1978070.87,kWh
+Estimated energy cost,109149.95,USD
+Actual hours available,5459.0,hours
+Expected hours,8784.0,hours
+Missing hours,3325.0,hours
+Overall data coverage,62.15,%
+Highest observed hourly load,999.83,kW

@@ -1,4 +1,6 @@
 
+SUPPLY_DELIVERY_RATE_PER_KWH = 0.055180
+
 class BatteryConfig:
     # Physical Properties
     capacity_mw: float = 5
