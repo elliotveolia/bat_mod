@@ -1,4 +1,5 @@
 import pandas as pd
+from config import BatteryConfig
 
 # Display all rows and columns
 pd.set_option('display.max_rows', 100)
@@ -10,5 +11,7 @@ df = pd.read_csv('data/Grid Import.csv')
 
 print(df)
 
+capacity = BatteryConfig.capacity_mw
 
 
+print(capacity)
