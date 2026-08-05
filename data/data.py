@@ -14,10 +14,10 @@ df['Time'] = df['DateTime'].dt.strftime('%H:%M')
 df = df.drop('DateTime', axis=1)
 
 # Rename the long column to 'Load'
-df = df.rename(columns={'Total Grid Power to Site (Calc) (kWHr)': 'Load'})
+df = df.rename(columns={'Total Grid Power to Site (Calc) (kWHr)': 'Load_kWhr'})
 
 # Keep only the columns you want
-df = df[['Day', 'Date', 'Time', 'Load']]
+df = df[['Day', 'Date', 'Time', 'Load_kWhr']]
 
 # Convert to datetime
 df['Date'] = pd.to_datetime(df['Date'], format='%d %b %Y')
