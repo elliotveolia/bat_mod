@@ -1,64 +1,45 @@
 import pandas as pd
 
-INTERVAL_HOURS = 1.0
 
-data = pd.read_csv("data/Grid Import.csv")
+def create_baseline_report(data):
+    """Create a monthly baseline report from loaded hourly data."""
 
-print("Columns found:", list(data.columns))
-print(data.head())
-
-data["timestamp"] = pd.to_datetime(
-    data["Date"].astype(str) + " " + data["Time"].astype(str),
-    errors="coerce"
-)
-
-data["load_kw"] = pd.to_numeric(data["Load_kWhr"], errors="coerce")
-
-data = data.dropna(subset=["timestamp", "load_kw"])
-data = data.sort_values("timestamp")
-
-data["month"] = data["timestamp"].dt.to_period("M").astype(str)
-data["weekday"] = data["timestamp"].dt.weekday
-data["hour"] = data["timestamp"].dt.hour
-
-data["is_peak_period"] = (
-    (data["weekday"] < 5) &
-    (data["hour"] >= 8) &
-    (data["hour"] < 21)
-)
-
-data["energy_kwh"] = data["load_kw"] * INTERVAL_HOURS
-
-monthly_energy = (
-    data.groupby("month")
-    .agg(
-        total_energy_kwh=("energy_kwh", "sum"),
-        average_load_kw=("load_kw", "mean"),
-        interval_count=("load_kw", "count")
+    monthly = (
+        data.groupby("month")
+        .agg(
+            measured_energy_kwh=("load_kwh", "sum"),
+            average_hourly_load_kw=("average_load_kw", "mean"),
+            highest_observed_load_kw=("average_load_kw", "max"),
+            actual_hours=("load_kwh", "count"),
+            peak_period_hours=("is_peak_period", "sum"),
+        )
+        .reset_index()
     )
-    .reset_index()
-)
 
-peak_data = data[data["is_peak_period"]]
+    # Expected number of calendar hours in each month of leap year 2024
+    expected_hours = {
+        "2024-01": 744,
+        "2024-02": 696,
+        "2024-03": 744,
+        "2024-04": 720,
+        "2024-05": 744,
+        "2024-06": 720,
+        "2024-07": 744,
+        "2024-08": 744,
+        "2024-09": 720,
+        "2024-10": 744,
+        "2024-11": 720,
+        "2024-12": 744,
+    }
 
-monthly_peak = (
-    peak_data.groupby("month")
-    .agg(
-        highest_recorded_hourly_load_kw=("load_kw", "max"),
-        peak_interval_count=("load_kw", "count")
+    monthly["expected_hours"] = monthly["month"].map(expected_hours)
+    monthly["missing_hours"] = (
+        monthly["expected_hours"] - monthly["actual_hours"]
     )
-    .reset_index()
-)
+    monthly["coverage_percent"] = (
+        monthly["actual_hours"]
+        / monthly["expected_hours"]
+        * 100
+    ).round(2)
 
-baseline = monthly_energy.merge(monthly_peak, on="month", how="left")
-baseline["highest_recorded_hourly_load_kw"] = baseline[
-    "highest_recorded_hourly_load_kw"
-].fillna(0)
-
-baseline.to_csv("outputs/baseline_monthly_summary.csv", index=False)
-
-print("\nBaseline monthly summary:")
-print(baseline.to_string(index=False))
-
-print("\nAnnual total energy:", round(data["energy_kwh"].sum(), 2), "kWh")
-print("Highest recorded load:", round(data["load_kw"].max(), 2), "kW")
+    return monthly

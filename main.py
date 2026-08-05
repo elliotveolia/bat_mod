@@ -1,11 +1,20 @@
-from data_loader import check_data_quality, load_data
+from data_loader import load_data, check_data_quality
+from report import create_baseline_report
 
 
-data = load_data("data/Grid Import.csv")
-check_data_quality(data)
+def main():
+    data = load_data("data/Grid Import.csv")
+    check_data_quality(data)
 
-print("\nLoaded columns:")
-print(data.columns.tolist())
+    baseline = create_baseline_report(data)
+    baseline.to_csv(
+        "baseline_monthly_summary.csv",
+        index=False
+    )
 
-print("\nFirst five rows:")
-print(data.head())
+    print("\nBaseline report:")
+    print(baseline.to_string(index=False))
+
+
+if __name__ == "__main__":
+    main()
