@@ -33,3 +33,51 @@ class Battery:
         energy_limited_output = ((self.soc_kwh - self.min_soc_kwh) * self.discharge_efficiency)
 
         return max(0.0, min(power_limited_output, energy_limited_output),)
+
+    def charge(self, grid_energy_kwh, interval_hours = 1.0):
+        "Charge the battery from the grid, returns the accepted grid energy"
+
+        if grid_energy_kwh < 0:
+            raise ValueError("Error: Energy charged cannot be negative")
+
+        accepted_kwh = min(grid_energy_kwh, self.charge_available_for_input_kwh(interval_hours),)
+        self.soc_kwh = self.soc_kwh + accepted_kwh * self.charge_efficiency
+
+        return accepted_kwh
+
+    def discharge(self, requested_output_kwh, interval_hours = 1.0):
+        "Discharge the battery to the grid, returns the delivered outputted energy"
+
+        if requested_output_kwh < 0:
+            raise ValueError("Error: Energy discharged cannot be negative")
+
+        delivered_kwh = min(requested_output_kwh, self.discharge_available_for_output_kwh(interval_hours),)
+        self.soc_kwh = self.soc_kwh - (delivered_kwh / self.discharge_efficiency)
+        return delivered_kwh
+
+    def reset(self):
+        "Reset the battery to the initial state"
+
+        self.soc_kwh = (self.config.initial_soc_fraction * self.capacity_kwh)
+
+    def status(self):
+        "Return the status of the battery"
+
+        return {
+            "soc_kwh": round(self.soc_kwh, 2),
+            "soc_percent": round(
+                self.soc_kwh / self.capacity_kwh * 100,
+                2,
+            ),
+            "min_soc_kwh": round(self.min_soc_kwh, 2),
+            "max_soc_kwh": round(self.max_soc_kwh, 2),
+            "available_charge_input_kwh": round(
+                self.charge_available_for_input_kwh(),
+                2,
+            ),
+            "available_discharge_output_kwh": round(
+                self.discharge_available_for_output_kwh(),
+                2,
+            ),
+        }
+

@@ -4,10 +4,10 @@ SUPPLY_DELIVERY_RATE_PER_KWH = 0.055180
 
 class BatteryConfig:
     # Nameplate battery power: 5 MW = 5,000 kW
-    max_power_kw: float = 5_000.0
+    max_power_kw: float = 5000.0
 
     # Four-hour duration at the maximum discharge power.
-    capacity_kwh: float = 20_000.0
+    capacity_kwh: float = 20000.0
     duration_hours: float = 4.0
 
     # State of charge limits, expressed as fractions of capacity.
@@ -17,7 +17,7 @@ class BatteryConfig:
 
     # Round-trip efficiency.
     round_trip_efficiency: float = 0.90
-    
+
     # This represents a constant 100 kW auxiliary load while operating.
     auxiliary_load_kw: float = 100.0
 
